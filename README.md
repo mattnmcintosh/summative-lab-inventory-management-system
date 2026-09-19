@@ -82,7 +82,6 @@ When you run python cli.py, you will be greeted by an interactive menu with opti
 Example 1: Viewing Local Inventory (Option 1)
 Select option 1 from the menu to fetch and display everything currently stored locally:
 
-Plaintext
 ==============================
    OPENFOODFACTS INVENTORY CLI
 ==============================
@@ -103,7 +102,6 @@ Select an option (1-8): 1
 Example 2: Fetching an Item from OpenFoodFacts by Barcode (Option 3)
 Select option 3 to pull data directly from the live API and save it to your local storage:
 
-Plaintext
 Select an option (1-8): 3
 Enter the barcode to fetch from OpenFoodFacts and save locally: 5449000000996
 
@@ -117,7 +115,6 @@ Enter the barcode to fetch from OpenFoodFacts and save locally: 5449000000996
 Example 3: Updating Item Details (Option 6)
 Select option 6 to patch an existing record's details:
 
-Plaintext
 Select an option (1-8): 6
 Enter the barcode (code) of the item you want to update: 3017620422003
 
@@ -135,7 +132,6 @@ New product name: Delicious Hazelnut Spread
 Example 4: Deleting a Product (Option 7)
 Select option 7 to remove a product from your local database:
 
-Plaintext
 Select an option (1-8): 7
 Enter the barcode (code) of the item you want to delete: 3017620422003
 Are you sure you want to delete item 3017620422003? (y/n): y
