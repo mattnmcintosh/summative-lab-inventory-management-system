@@ -24,8 +24,11 @@ def get_live_inventory_by_code(code):
     if response.status_code == 404:
         return jsonify({"message": "Product not found in the API. The local database will not be changed."}), 404
     else:
-        data = response.json()
-        product = parse_to_database_format(data)
+        response_data = response.json()
+        product_data = response_data.get("product")
+        if not product_data:
+            return jsonify({"message": "Product data was missing from the API response, the local database will not be changed"}), 500
+        product = parse_to_database_format(product_data)
         if product == None:
             return jsonify({"message": "Somehow, an object without an code was retrieved. There is no valid entry. The local database will not be changed"}), 500
         else:
@@ -57,6 +60,7 @@ def add_new_inventory_item():
 
 @app.route("/inventory/<string:code>", methods=["PATCH"])
 def update_inventory_item_by_code(code):
+    global products
     data = request.get_json()
     product = next((p for p in products if p["code"] == code), None)
     if not product:
@@ -65,15 +69,16 @@ def update_inventory_item_by_code(code):
         filtered_updates = update_with_database_format(data)
         updated_product = {**product, **filtered_updates}
         updated_product["code"] = code
-        products[:] = [updated_product if p.get("code") == code else p for p in products]
+        products = [updated_product if p.get("code") == code else p for p in products]
         return jsonify(updated_product), 200
 
 @app.route("/inventory/<string:code>", methods=["DELETE"])
 def remove_inventory_item_by_code(code):
+    global products
     removable_product = next((p for p in products if p["code"] == code), None)
     if not removable_product:
         return jsonify({"message": "Code not found"}), 404
-    products[:] = [p for p in products if p["code"] != code]
+    products = [p for p in products if p["code"] != code]
     return jsonify({"message": "Product deleted"}), 204
 
 def parse_to_database_format(d: dict) -> dict:
@@ -88,11 +93,12 @@ def update_with_database_format(d: dict) -> dict:
     return new_dict
           
 def get_likely_search_results(res: dict) -> dict:
-    hits_list = res["hits"]
-    if len(hits_list) == 0:
+    products_list = res.get("products", res.get("hits", []))
+    if not products_list:
         return None
-    new_dict = [parse_to_database_format(hit) for hit in hits_list]
-    return new_dict
+    parsed_results = [parse_to_database_format(p) for p in products_list]
+    valid_results = [p for p in parsed_results if p is not None]
+    return valid_results if valid_results else None
     
 if __name__ == "__main__":
     app.run(debug=True)
